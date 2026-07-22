@@ -168,7 +168,7 @@ esac
 section "IAM policy (least privilege)"
 # Generate a policy scoped to exactly the chosen models + bucket. Region is
 # wildcarded on the foundation-model ARNs because cross-region inference profiles
-# route the call across several US regions; the profile ARN stays account-scoped.
+# route the call across several regions; the profile ARN stays account-scoped.
 ALL_MODELS="${REVIEWER_1} ${REVIEWER_2} ${REVIEWER_3} ${SYNTHESIZER}"
 ACCOUNT="$ACCOUNT" BUCKET="$BUCKET" MODELS="$ALL_MODELS" python3 - "$POLICY_FILE" <<'PY'
 import json, os, sys
@@ -177,11 +177,17 @@ account = os.environ["ACCOUNT"]
 bucket = os.environ.get("BUCKET", "")
 models = os.environ["MODELS"].split()
 
+# Geographic inference-profile prefixes: the system-defined cross-region and
+# global profiles that fan a call out across regions. An ID that starts with one
+# of these is a profile (needs both the profile ARN and the underlying model
+# ARN); anything else is a bare on-demand foundation model. If AWS adds new
+# country-level profiles, this is the one set to extend.
+GEO_PREFIXES = {"us", "us-gov", "eu", "apac", "jp", "au", "global"}
+
 foundation, profiles = set(), set()
 for m in models:
     head = m.split(".", 1)[0]
-    if head in {"us", "eu", "apac", "ug"} and "." in m:
-        # inference profile: needs the profile ARN + the underlying model ARN
+    if head in GEO_PREFIXES and "." in m:
         profiles.add(f"arn:aws:bedrock:*:{account}:inference-profile/{m}")
         foundation.add(f"arn:aws:bedrock:*::foundation-model/{m.split('.', 1)[1]}")
     else:
@@ -266,7 +272,10 @@ KNOWN = {
 def label(model_id):
     if model_id in KNOWN:
         return KNOWN[model_id]
-    name = re.sub(r"^(us|eu|apac|ug)\.", "", model_id)
+    # Strip a leading geographic inference-profile prefix so the status-table
+    # name reads as the model, not the routing region (kept in sync with the
+    # policy generator's GEO_PREFIXES).
+    name = re.sub(r"^(us-gov|global|apac|eu|au|jp|us)\.", "", model_id)
     return name.replace(".", "-")
 
 reviewers = {}
