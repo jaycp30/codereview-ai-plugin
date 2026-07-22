@@ -1,0 +1,14 @@
+{
+  "name": "codereview-ai",
+  "owner": { "name": "jaycp30" },
+  "metadata": {
+    "description": "Multi-model PR code review plugin (Amazon Bedrock: three parallel reviewers + a synthesizer)."
+  },
+  "plugins": [
+    {
+      "name": "pr",
+      "source": "./plugins/pr",
+      "description": "Multi-model PR code review: three Bedrock models review a diff independently, a fourth synthesizes their findings, results archived to S3"
+    }
+  ]
+}

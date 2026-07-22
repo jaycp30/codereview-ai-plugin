@@ -1,0 +1,18 @@
+# AWS access-key CSVs (console download lands them anywhere) — never commit
+*accessKeys*.csv
+*_credentials.csv
+
+# local scratch
+*.diff
+!sample.diff
+__pycache__/
+.pytest_cache/
+
+# machine-local Claude Code settings
+.claude/settings.local.json
+
+# OS files
+.DS_Store
+
+# session handoffs / local scratch notes
+handoff_*.md

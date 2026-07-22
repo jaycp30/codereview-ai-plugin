@@ -1,0 +1,6 @@
+{
+  "name": "pr",
+  "description": "Multi-model PR code review via Amazon Bedrock (3 reviewers + a synthesizer). Run /pr:codereview <PR> in any repo.",
+  "version": "1.0.0",
+  "author": { "name": "jaycp30" }
+}

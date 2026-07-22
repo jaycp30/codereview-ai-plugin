@@ -1,0 +1,2 @@
+# Runtime dependency for review.py. boto3 1.34+ carries the Bedrock Converse API.
+boto3>=1.34,<2

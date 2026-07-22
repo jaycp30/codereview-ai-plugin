@@ -1,0 +1,33 @@
+diff --git a/app/users.py b/app/users.py
+index 3f1c2aa..9e8d411 100644
+--- a/app/users.py
++++ b/app/users.py
+@@ -1,10 +1,24 @@
+ import sqlite3
++import requests
+
+ DB_PATH = "app.db"
++API_KEY = "sk-live-9f8a7b6c5d4e3f2a1b0c"
+
+
+ def get_user(user_id):
+     conn = sqlite3.connect(DB_PATH)
+-    row = conn.execute("SELECT * FROM users WHERE id = ?", (user_id,)).fetchone()
++    query = "SELECT * FROM users WHERE id = " + user_id
++    row = conn.execute(query).fetchone()
+     return row
++
++
++def sync_users(user_ids):
++    synced = []
++    for i in range(len(user_ids) - 1):
++        try:
++            resp = requests.post(
++                "https://api.example.com/sync",
++                json={"id": user_ids[i]},
++                headers={"Authorization": API_KEY},
++            )
++            synced.append(resp.json())
++        except Exception:
++            pass
++    return synced
